@@ -1,0 +1,27 @@
+{
+  "name": "api-mr",
+  "version": "1.0.0",
+  "description": "api test for mobile reader",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "heroku",
+    "url": "https://git.heroku.com/thawing-thicket-19851.git"
+  },
+  "keywords": [
+    "heroku",
+    "node"
+  ],
+  "engines": {
+    "node": "16.17.0"
+  },
+  "type": "module",
+  "author": "yonie",
+  "license": "ISC",
+  "dependencies": {
+    "date-and-time": "^2.4.1"
+  }
+}
