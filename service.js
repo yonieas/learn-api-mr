@@ -5,6 +5,14 @@ export class apiService {
     listPeriode = [0];
     cekStatus = [""];
     tgl = new Date();
+
+    getRootJson(req, res) {
+        res.write(JSON.stringify({
+            datetime: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss')
+        }));
+        res.end();
+    }
+
     getJsonData() {
         return JSON.stringify({
             status: this.cekStatus.map((value) => {
@@ -25,7 +33,7 @@ export class apiService {
         req.addListener("data", (data) => {
             const body = JSON.parse(data.toString());
             this.listPeriode.splice(0,1,body.shift);
-            const waktu = date.preparse(body.datetime, 'YYYY/MM/DD HH:mm:ss');
+            const waktu = date.preparse(body.datetime, 'YYYY-MM-DD HH:mm:ss');
             // if (body.shift !== 1 && waktu.H >= 7) {
             //     this.cekStatus.splice(0,1,"sukses");
             // } else {
