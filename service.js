@@ -1,5 +1,4 @@
 import date from 'date-and-time';
-import id from 'date-and-time/locale/id';
 
 export class apiService {
     
@@ -8,10 +7,13 @@ export class apiService {
     tgl = new Date();
     saveBody;
 
+    // compareDate = (yearNow, monthNow, dateNow, hoursNow, minutesNow, yearBody, monthBody, dateBody, hoursBody, minutesBody) => {
+
+    // };
+
     getRootJson(req, res) {
-        date.locale(id);
         res.write(JSON.stringify({
-            datetime: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss'),
+            datetime: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss [GMT]Z', false),
             // datetimeLocal: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss')
         }));
         res.end();
@@ -39,11 +41,14 @@ export class apiService {
             const body = JSON.parse(data.toString());
             this.listPeriode.splice(0,1,body.shift);
             const waktu = date.preparse(body.datetime, 'YYYY-MM-DD HH:mm:ss');
-            // if (body.shift !== 1 && waktu.H >= 7) {
-            //     this.cekStatus.splice(0,1,"sukses");
-            // } else {
-            //     this.cekStatus.splice(0,1,"gagal");
-            // }
+            if (body.shift === 1) {
+                if (this.tgl.H && waktu.H >= 7) {
+                    this.cekStatus.splice(0,1,"sukses");
+                } else {
+                    this.cekStatus.splice(0,1,"gagal");
+                }
+            }
+            /*
             switch (body.shift) {
                 case 1:
                     if (waktu.H >= 7 && waktu.H <= 14) {
@@ -68,7 +73,7 @@ export class apiService {
                     }
                     break;
                 case 3:
-                    if (waktu.H >= 21 || waktu.H < 7) {
+                    if ((waktu.H >= 21 && waktu.H <= 23) || waktu.H < 7) {
                         this.cekStatus.splice(0,1,"sukses");
                     } else {
                         this.cekStatus.splice(0,1,"gagal");
@@ -78,6 +83,7 @@ export class apiService {
                 default:
                     break;
             }
+            */
             this.saveBody = body.datetime;
             console.info(this.listPeriode);
             console.info(this.cekStatus);
