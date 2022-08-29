@@ -4,8 +4,11 @@
   "description": "api test for mobile reader",
   "main": "app.js",
   "scripts": {
+    "run": "node app.js",
+    "prestart": "echo 'Before application start'",
     "start": "node app.js",
-    "test": "node app.js"
+    "poststart": "echo 'After application start'",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "heroku",
