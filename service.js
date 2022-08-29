@@ -1,6 +1,6 @@
 import date from 'date-and-time';
 import id from 'date-and-time/locale/id';
-import es from 'date-and-time/locale/id';
+
 export class apiService {
     
     listPeriode = [0];
