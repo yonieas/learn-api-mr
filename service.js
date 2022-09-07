@@ -1,4 +1,6 @@
 import date from 'date-and-time';
+import timezone from 'date-and-time/plugin/timezone';
+date.plugin(timezone);
 
 export class apiService {
     
@@ -13,7 +15,7 @@ export class apiService {
 
     getRootJson(req, res) {
         res.write(JSON.stringify({
-            datetime: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss [GMT]Z', false),
+            datetime: date.formatTZ(this.tgl, 'YYYY-MM-DD HH:mm:ss', 'Asia/Jakarta'),
             // datetimeLocal: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss')
         }));
         res.end();
