@@ -8,15 +8,30 @@ export class apiService {
     cekStatus = [""];
     tgl = new Date();
     saveBody;
+    dateTimeNow = date.formatTZ(this.tgl, 'YYYY-MM-DD HH:mm:ss', 'Asia/Jakarta');
+    compareDateTime = (yearNow, monthNow, dateNow, hoursNow, minutesNow, yearBody, monthBody, dateBody, hoursBody, minutesBody) => {
+        let compareDate = false;
+        let compareTime = false;
+        if (yearNow === yearBody) {
+            if (monthNow === monthBody) {
+                if (dateNow === dateBody) {
+                    compareDate = true;
+                }
+            }
+        }
 
-    // compareDate = (yearNow, monthNow, dateNow, hoursNow, minutesNow, yearBody, monthBody, dateBody, hoursBody, minutesBody) => {
-
-    // };
+        if (hoursNow === hoursBody) {
+            if (minutesNow === minutesBody) {
+                compareTime = true;
+            }
+        }
+        console.info(compareDate);
+        console.info(compareTime);
+    };
 
     getRootJson(req, res) {
         res.write(JSON.stringify({
-            datetime: date.formatTZ(this.tgl, 'YYYY-MM-DD HH:mm:ss', 'Asia/Jakarta'),
-            // datetimeLocal: date.format(this.tgl, 'YYYY-MM-DD HH:mm:ss')
+            datetime: this.dateTimeNow,
         }));
         res.end();
     }
@@ -43,8 +58,11 @@ export class apiService {
             const body = JSON.parse(data.toString());
             this.listPeriode.splice(0,1,body.shift);
             const waktu = date.preparse(body.datetime, 'YYYY-MM-DD HH:mm:ss');
+            const waktuServer = date.preparse(this.dateTimeNow, 'YYYY-MM-DD HH:mm:ss');
+            this.compareDateTime(waktuServer.Y, waktuServer.M, waktuServer.D, waktuServer.H, waktuServer.m,
+                waktu.Y, waktu.M, waktu.D, waktu.H, waktu.m);
             if (body.shift === 1) {
-                if (this.tgl.H && waktu.H >= 7) {
+                if (waktuServer.H >=7 && waktu.H >= 7) {
                     this.cekStatus.splice(0,1,"sukses");
                 } else {
                     this.cekStatus.splice(0,1,"gagal");
