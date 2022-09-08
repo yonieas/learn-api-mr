@@ -8,8 +8,9 @@ export class apiService {
     cekStatus = [""];
     tgl = new Date();
     saveBody;
+    body;
     dateTimeNow = date.formatTZ(this.tgl, 'YYYY-MM-DD HH:mm:ss', 'Asia/Jakarta');
-    compareDateTime = (yearNow, monthNow, dateNow, hoursNow, minutesNow, yearBody, monthBody, dateBody, hoursBody, minutesBody) => {
+    compareDateTime = (yearNow, monthNow, dateNow, hoursNow, minutesNow, yearBody, monthBody, dateBody, hoursBody, minutesBody, shiftBody) => {
         let compareDate = false;
         let compareTime = false;
         if (yearNow === yearBody) {
@@ -23,8 +24,42 @@ export class apiService {
         if (hoursNow === hoursBody) {
             if (minutesNow === minutesBody) {
                 compareTime = true;
+                switch (shiftBody) {
+                    case 1:
+                        if (hoursBody >= 7 && hoursBody <= 14) {
+                            if (hoursBody == 14 && minutesBody >= 1) {
+                                this.cekStatus.splice(0,1,"gagal");    
+                            } else {
+                                this.cekStatus.splice(0,1,"sukses");
+                            }
+                        } else {
+                            this.cekStatus.splice(0,1,"gagal");
+                        }
+                        break;
+                    case 2:
+                        if (hoursBody >= 14 && hoursBody <= 21) {
+                            if (hoursBody == 21 && minutesBody >= 1) {
+                                this.cekStatus.splice(0,1,"gagal");
+                            } else {
+                                this.cekStatus.splice(0,1,"sukses");
+                            }
+                        } else {
+                            this.cekStatus.splice(0,1,"gagal");
+                        }
+                        break;
+                    case 3:
+                        if ((hoursBody >= 21 && hoursBody <= 23) || hoursBody < 7) {
+                            this.cekStatus.splice(0,1,"sukses");
+                        } else {
+                            this.cekStatus.splice(0,1,"gagal");
+                        }
+                        break;
+                
+                    default:
+                        break;
             }
         }
+    }
         console.info(compareDate);
         console.info(compareTime);
     };
@@ -55,56 +90,13 @@ export class apiService {
     
     createSop(req,res) {
         req.addListener("data", (data) => {
-            const body = JSON.parse(data.toString());
-            this.listPeriode.splice(0,1,body.shift);
-            const waktu = date.preparse(body.datetime, 'YYYY-MM-DD HH:mm:ss');
+            this.body = JSON.parse(data.toString());
+            this.listPeriode.splice(0,1,this.body.shift);
+            const waktu = date.preparse(this.body.datetime, 'YYYY-MM-DD HH:mm:ss');
             const waktuServer = date.preparse(this.dateTimeNow, 'YYYY-MM-DD HH:mm:ss');
             this.compareDateTime(waktuServer.Y, waktuServer.M, waktuServer.D, waktuServer.H, waktuServer.m,
-                waktu.Y, waktu.M, waktu.D, waktu.H, waktu.m);
-            if (body.shift === 1) {
-                if (waktuServer.H >=7 && waktu.H >= 7) {
-                    this.cekStatus.splice(0,1,"sukses");
-                } else {
-                    this.cekStatus.splice(0,1,"gagal");
-                }
-            }
-            /*
-            switch (body.shift) {
-                case 1:
-                    if (waktu.H >= 7 && waktu.H <= 14) {
-                        if (waktu.H == 14 && waktu.m >= 1) {
-                            this.cekStatus.splice(0,1,"gagal");    
-                        } else {
-                            this.cekStatus.splice(0,1,"sukses");
-                        }
-                    } else {
-                        this.cekStatus.splice(0,1,"gagal");
-                    }
-                    break;
-                case 2:
-                    if (waktu.H >= 14 && waktu.H <= 21) {
-                        if (waktu.H == 21 && waktu.m >= 1) {
-                            this.cekStatus.splice(0,1,"gagal");
-                        } else {
-                            this.cekStatus.splice(0,1,"sukses");
-                        }
-                    } else {
-                        this.cekStatus.splice(0,1,"gagal");
-                    }
-                    break;
-                case 3:
-                    if ((waktu.H >= 21 && waktu.H <= 23) || waktu.H < 7) {
-                        this.cekStatus.splice(0,1,"sukses");
-                    } else {
-                        this.cekStatus.splice(0,1,"gagal");
-                    }
-                    break;
-            
-                default:
-                    break;
-            }
-            */
-            this.saveBody = body.datetime;
+                waktu.Y, waktu.M, waktu.D, waktu.H, waktu.m, this.body.shift);
+            this.saveBody = this.body.datetime;
             console.info(this.listPeriode);
             console.info(this.cekStatus);
             res.write(this.getJsonData());
@@ -112,5 +104,3 @@ export class apiService {
         })
     }
 }
-
-//
