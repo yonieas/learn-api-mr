@@ -4,8 +4,9 @@ let port = process.env.PORT;
 if (port == null || port == "") {
     port = 3000;
 }
-const service = new apiService();
+
 const server = http.createServer((req, res) => {
+    const service = new apiService();
     console.info(req.method);
     res.setHeader("Content-Type", "application/json");
     if (req.url === "/") {

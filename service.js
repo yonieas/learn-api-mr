@@ -3,13 +3,14 @@ import timezone from 'date-and-time/plugin/timezone';
 date.plugin(timezone);
 
 export class apiService {
-    
-    listPeriode = [0];
-    cekStatus = [""];
     tgl = new Date();
-    saveBody;
-    body;
     dateTimeNow = date.formatTZ(this.tgl, 'YYYY-MM-DD HH:mm:ss', 'Asia/Jakarta');
+    cekShift = [0];
+    cekStatus = [""];
+    saveBodyDateTime;
+    sendStatus = (status) =>{
+        return this.cekStatus.splice(0,1, status);
+    }
     compareDateTime = (yearNow, monthNow, dateNow, hoursNow, minutesNow, yearBody, monthBody, dateBody, hoursBody, minutesBody, shiftBody) => {
         let compareDate = false;
         let compareTime = false;
@@ -20,50 +21,63 @@ export class apiService {
                 }
             }
         }
-
+        
         if (hoursNow === hoursBody) {
-            if (minutesNow === minutesBody) {
+            if (minutesBody >= minutesNow - 2 && minutesBody <= minutesNow + 2) { //bug di pergantian jam menit 00
                 compareTime = true;
                 switch (shiftBody) {
                     case 1:
                         if (hoursBody >= 7 && hoursBody <= 14) {
                             if (hoursBody == 14 && minutesBody >= 1) {
-                                this.cekStatus.splice(0,1,"gagal");    
+                                // this.cekStatus.splice(0,1,"gagal");
+                                this.sendStatus("gagal");    
                             } else {
-                                this.cekStatus.splice(0,1,"sukses");
+                                // this.cekStatus.splice(0,1,"sukses");
+                                this.sendStatus("sukses");
                             }
                         } else {
-                            this.cekStatus.splice(0,1,"gagal");
+                            // this.cekStatus.splice(0,1,"gagal");
+                            this.sendStatus("gagal");
                         }
                         break;
                     case 2:
                         if (hoursBody >= 14 && hoursBody <= 21) {
                             if (hoursBody == 21 && minutesBody >= 1) {
-                                this.cekStatus.splice(0,1,"gagal");
+                                // this.cekStatus.splice(0,1,"gagal");
+                                this.sendStatus("gagal");
                             } else {
-                                this.cekStatus.splice(0,1,"sukses");
+                                // this.cekStatus.splice(0,1,"sukses");
+                                this.sendStatus("sukses");
                             }
                         } else {
-                            this.cekStatus.splice(0,1,"gagal");
+                            // this.cekStatus.splice(0,1,"gagal");
+                            this.sendStatus("gagal");
                         }
-                        break;
+                    break;
                     case 3:
                         if ((hoursBody >= 21 && hoursBody <= 23) || hoursBody < 7) {
-                            this.cekStatus.splice(0,1,"sukses");
-                        } else {
-                            this.cekStatus.splice(0,1,"gagal");
-                        }
-                        break;
+                        // this.cekStatus.splice(0,1,"sukses");
+                        this.sendStatus("sukses");
+                    } else {
+                        // this.cekStatus.splice(0,1,"gagal");
+                        this.sendStatus("gagal");
+                    }
+                    break;
                 
                     default:
+                        this.sendStatus("parameter unregocnized")
                         break;
+                }
+            } else {
+                this.sendStatus("gagal");
             }
         }
-    }
         console.info(compareDate);
         console.info(compareTime);
+        console.info(minutesNow - 2);
+        console.info(minutesNow + 2);
     };
-
+    
     getRootJson(req, res) {
         res.write(JSON.stringify({
             datetime: this.dateTimeNow,
@@ -76,10 +90,10 @@ export class apiService {
             status: this.cekStatus.map((value) => {
                 return value
             }),
-            shift: this.listPeriode.map((value) => {
+            shift: this.cekShift.map((value) => {
                 return value
             }),
-            datetime: this.saveBody
+            datetime: this.dateTimeNow
         });
     }
     
@@ -90,15 +104,14 @@ export class apiService {
     
     createSop(req,res) {
         req.addListener("data", (data) => {
-            this.body = JSON.parse(data.toString());
-            this.listPeriode.splice(0,1,this.body.shift);
-            const waktu = date.preparse(this.body.datetime, 'YYYY-MM-DD HH:mm:ss');
+            const body = JSON.parse(data.toString());
+            this.cekShift.splice(0,1,body.shift);
+            const waktu = date.preparse(body.datetime, 'YYYY-MM-DD HH:mm:ss');
             const waktuServer = date.preparse(this.dateTimeNow, 'YYYY-MM-DD HH:mm:ss');
             this.compareDateTime(waktuServer.Y, waktuServer.M, waktuServer.D, waktuServer.H, waktuServer.m,
-                waktu.Y, waktu.M, waktu.D, waktu.H, waktu.m, this.body.shift);
-            this.saveBody = this.body.datetime;
-            console.info(this.listPeriode);
-            console.info(this.cekStatus);
+                waktu.Y, waktu.M, waktu.D, waktu.H, waktu.m, body.shift);
+            this.saveBodyDateTime = body.datetime;
+            console.info(this.saveBodyDateTime);
             res.write(this.getJsonData());
             res.end();
         })
