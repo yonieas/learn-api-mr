@@ -1,7 +1,16 @@
 import date from 'date-and-time';
 import timezone from 'date-and-time/plugin/timezone';
+import winston from 'winston';
 date.plugin(timezone);
-
+const logger = winston.createLogger({
+    level: "info",
+    format: winston.format.printf(info => {
+        return `${new Date()} : ${info.level.toLocaleUpperCase()} : ${info.message}`;
+    }),
+    transports: [
+        new winston.transports.Console({})
+    ]
+});
 export class apiService {
     tgl = new Date();
     dateTimeNow = date.formatTZ(this.tgl, 'YYYY-MM-DD HH:mm:ss', 'Asia/Jakarta');
@@ -29,37 +38,29 @@ export class apiService {
                     case 1:
                         if (hoursBody >= 7 && hoursBody <= 14) {
                             if (hoursBody == 14 && minutesBody >= 1) {
-                                // this.cekStatus.splice(0,1,"gagal");
                                 this.sendStatus("gagal");    
                             } else {
-                                // this.cekStatus.splice(0,1,"sukses");
                                 this.sendStatus("sukses");
                             }
                         } else {
-                            // this.cekStatus.splice(0,1,"gagal");
                             this.sendStatus("gagal");
                         }
                         break;
                     case 2:
                         if (hoursBody >= 14 && hoursBody <= 21) {
                             if (hoursBody == 21 && minutesBody >= 1) {
-                                // this.cekStatus.splice(0,1,"gagal");
                                 this.sendStatus("gagal");
                             } else {
-                                // this.cekStatus.splice(0,1,"sukses");
                                 this.sendStatus("sukses");
                             }
                         } else {
-                            // this.cekStatus.splice(0,1,"gagal");
                             this.sendStatus("gagal");
                         }
                     break;
                     case 3:
                         if ((hoursBody >= 21 && hoursBody <= 23) || hoursBody < 7) {
-                        // this.cekStatus.splice(0,1,"sukses");
                         this.sendStatus("sukses");
                     } else {
-                        // this.cekStatus.splice(0,1,"gagal");
                         this.sendStatus("gagal");
                     }
                     break;
@@ -112,6 +113,7 @@ export class apiService {
                 waktu.Y, waktu.M, waktu.D, waktu.H, waktu.m, body.shift);
             this.saveBodyDateTime = body.datetime;
             console.info(this.saveBodyDateTime);
+            logger.info(body.shift);
             res.write(this.getJsonData());
             res.end();
         })
